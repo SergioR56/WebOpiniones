@@ -6,6 +6,15 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 
+//Importar las rutas
+const routes = require('./src/routes');
+
+//Importar las funciones controladoras de errores
+const {
+    errorController,
+    notFoundController,
+} = require('./src/controllers/errors');
+
 //Crear el servidor
 const app = express();
 
@@ -18,26 +27,16 @@ app.use(morgan('dev'));
 //Middleware que evita problemas con las CORS cuando intentamos conectar el cliente con el servidor.
 app.use(cors());
 
+//Middleware que indica a express donde se encuentran las rutas
+app.use(routes);
+
 //Middleware de ruta no encontrada
-app.use((req, res) => {
-    res.status(404).send({
-        status: 'error',
-        message: 'Ruta no encontrada',
-    });
-});
+app.use(notFoundController);
 
 //Middleware de error
-//eslint-disable-next-line
-app.use((err, req, res, next) => {
-    console.error(err);
-
-    res.status(err.httpStatus || 500).send({
-        status: 'error',
-        message: err.message,
-    });
-});
+app.use(errorController);
 
 //El servidor escucha peticiones en un puerto especificado
 app.listen(process.env.PORT, () => {
-    console.log(`Servidor funcionando en http://localhost:${process.env.PORT}`);
+    console.log(`Server is running at https://localhost:${process.env.PORT}`);
 });

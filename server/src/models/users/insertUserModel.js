@@ -4,6 +4,12 @@ const bcrypt = require('bcrypt');
 //Importar la funcion que nos permite obtener una conexion libre con la base de datos.
 const getDb = require('../../db/getDb');
 
+//Importar los errores.
+const {
+    emailAlreadyRegisteredError,
+    userAlreadyRegisteredError,
+} = require('../../services/errorService');
+
 //Funcion que se conectara a la base de datos y creara un usuario.
 const insertUserModel = async (username, email, passwod) => {
     let connection;
@@ -19,9 +25,7 @@ const insertUserModel = async (username, email, passwod) => {
 
         //Si existe algun usuario con ese email lanzamos un error
         if (users.length > 0) {
-            const err = new Error('Ya existe un usuario con ese email', 409);
-            err.httpStatus = 409;
-            throw err;
+            emailAlreadyRegisteredError();
         }
 
         //Busca en la base de datos algun usuario con ese username
@@ -32,9 +36,7 @@ const insertUserModel = async (username, email, passwod) => {
 
         //Si existe algun usuario con ese nombre lanzamos un error
         if (users.length > 0) {
-            const err = new Error('Ya existe un usuario con ese nombre', 409);
-            err.httpStatus = 409;
-            throw err;
+            userAlreadyRegisteredError();
         }
 
         //Encripta la contraseña
